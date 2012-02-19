@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     plot = new SignalPlot(ui->centralWidget);
+    ui->verticalLayout->addWidget(plot);
     plot->setChannels(4);
     plot->setFrequency(250);
     plot->setTimeInterval(2);

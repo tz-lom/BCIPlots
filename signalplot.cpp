@@ -9,7 +9,9 @@ SignalPlot::SignalPlot(QWidget *parent) :
     mChannels(1),
     mFrequency(1),
     mTimeInterval(1),
-    mAmp(1)
+    mAmp(1),
+    mItemsPerPixel(1),
+    mChannelDataReceived(0)
 {
     rebuildChannelContainers();
     mBackgroundColor = QColor("black");
@@ -54,7 +56,14 @@ void SignalPlot::addData(const int *data, const int size)
 
 void SignalPlot::incrementalUpdate(int items)
 {
-    update();
+    mChannelDataReceived+=items;
+    if(items>mItemsPerPixel)
+    {
+        int pos = this->size().width() - mPlotArea.width() + mPlotArea.width()*mChannelData[0].internalPos()/mChannelData[0].size();
+        QRect rect(pos-1,0,pos+1,mPlotArea.height());
+        update(rect);
+        mChannelDataReceived = 0;
+    }
 }
 
 void SignalPlot::setChannels(int channels)
@@ -152,7 +161,7 @@ void SignalPlot::paintEvent(QPaintEvent *event)
     painter.setClipRect(event->rect());
     //painter.setRenderHint(QPainter::Antialiasing);
     painter.drawImage(QPoint(0,0), mBackground);
-    drawSignal();
+    drawSignal(event->rect());
     painter.end();
 }
 
@@ -205,11 +214,14 @@ void SignalPlot::drawSignal(QRect clippingRect)
 
     int pos = mChannelData[0].internalPos();
     painter.drawLine(pos, 0, pos, mPlotArea.height());
+
+    painter.end();
 }
 
 void SignalPlot::resizeEvent(QResizeEvent *)
 {
     buildBackground();
+    mItemsPerPixel = floor(mPlotArea.width()/mChannelData[0].size());
     update();
 }
 

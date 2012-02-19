@@ -1,12 +1,17 @@
 #ifndef CYCLICVECTOR_H
 #define CYCLICVECTOR_H
 
+#include <memory.h>
+
 template<typename T>
 class CyclicVector
 {
 public:
+    CyclicVector(const CyclicVector<T> &other);
     CyclicVector(int length=1);
     ~CyclicVector();
+
+    CyclicVector<T>& operator=(const CyclicVector<T> &other);
 
     void append(T value);
     T& operator[](int item);
@@ -27,7 +32,8 @@ private:
 
 
 template<typename T>
-CyclicVector<T>::CyclicVector(int length)
+CyclicVector<T>::CyclicVector(int length):
+    buffer(0)
 {
     this->length = length<1?1:length;
     buffer = new T[this->length];
@@ -35,9 +41,29 @@ CyclicVector<T>::CyclicVector(int length)
 }
 
 template<typename T>
+CyclicVector<T>::CyclicVector(const CyclicVector<T> &other):
+    buffer(0)
+{
+    length = other.length;
+    buffer = new T[this->length];
+    memcpy(buffer, other.buffer, sizeof(T)*length);
+    pos = other.pos;
+}
+
+template<typename T>
+CyclicVector<T>& CyclicVector<T>::operator=(const CyclicVector<T> &other)
+{
+    resize(other.length);
+    memcpy(buffer, other.buffer, length);
+    pos = other.pos;
+}
+
+template<typename T>
 CyclicVector<T>::~CyclicVector()
 {
-    delete buffer;
+    if(buffer)
+        delete buffer;
+    buffer = 0;
 }
 
 template<typename T>
@@ -49,9 +75,10 @@ int CyclicVector<T>::size()
 template<typename T>
 void CyclicVector<T>::resize(int length)
 {
-    if(length==this->length) return;
+    if(length==this->length || length<1) return;
     this->length = length;
-    delete buffer;
+    if(buffer)
+        delete buffer;
     buffer = new T[length];
     clear();
 }
