@@ -64,6 +64,7 @@ void SignalPlot::incrementalUpdate(int items)
         update(rect);
         mChannelDataReceived = 0;
     }
+    //update();
 }
 
 void SignalPlot::setChannels(int channels)
@@ -161,33 +162,36 @@ void SignalPlot::paintEvent(QPaintEvent *event)
     painter.setClipRect(event->rect());
     //painter.setRenderHint(QPainter::Antialiasing);
     painter.drawImage(QPoint(0,0), mBackground);
-    drawSignal(event->rect());
+    drawSignal(painter);
     painter.end();
 }
 
-void SignalPlot::drawSignal(QRect clippingRect)
+void SignalPlot::drawSignal(QPainter &painter)
 {
-    QPainter painter;
-    painter.begin(this);
+    /*QPainter painter;
+    painter.begin(this);*/
 
 
     int beginLine = 0,
             endLine = mChannelData[0].size();
-    if(!clippingRect.isNull())
+
+    //painter.setClipRect(clippingRect);
+
+    /*if(!clippingRect.isNull())
     {
         int leftBorder = std::max(clippingRect.left() - this->width()+mPlotArea.width(), 0);
         int rightBorder = std::min(clippingRect.right(), this->width());
         int length = rightBorder-leftBorder;
         beginLine = floor(leftBorder/length*mChannelData[0].size());
         endLine = ceil(rightBorder/length*mChannelData[0].size());
-    }
+    }*/
     QTransform matrix;
     matrix.translate(
                     this->size().width() - mPlotArea.width(),
                     0
                 );
     matrix.scale(
-                    (qreal)mPlotArea.width()/this->size().width(),
+                    (qreal)mPlotArea.width()/mChannelData[0].size(),
                     1
                 );
 
@@ -215,7 +219,7 @@ void SignalPlot::drawSignal(QRect clippingRect)
     int pos = mChannelData[0].internalPos();
     painter.drawLine(pos, 0, pos, mPlotArea.height());
 
-    painter.end();
+   // painter.end();
 }
 
 void SignalPlot::resizeEvent(QResizeEvent *)

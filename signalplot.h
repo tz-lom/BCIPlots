@@ -43,7 +43,7 @@ protected:
     QColor mLinesColor;
 
     void buildBackground();
-    void drawSignal(QRect clippingRect = QRect());
+    void drawSignal(QPainter &painter);//QRect clippingRect = QRect());
 
     void rebuildChannelContainers();
     void paintEvent(QPaintEvent *);
