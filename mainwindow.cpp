@@ -10,13 +10,17 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    plot = new SignalPlot(ui->centralWidget);
+    /*plot = new SignalPlot(ui->centralWidget);
     ui->verticalLayout->addWidget(plot);
     plot->setChannels(4);
     plot->setFrequency(250);
     plot->setTimeInterval(2);
     plot->setAmplification(1);
-    plot->resize(500,500);
+    plot->resize(500,500);*/
+
+    zone = new PlCurvesZone(ui->centralWidget);
+    zone->curve.resize(zone->width(),500);
+    ui->verticalLayout->addWidget(zone);
 
     t=0;
     /*for(int i=0; i<500; ++i)
@@ -43,7 +47,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::timerEvent(QTimerEvent*)
 {
-    int data[4*8];
+    qreal data[4*8];
     for(int i=0; i<4*8; i+=4)
     {
         data[i+0] = 50*sin(t * 2*M_PI*1/(250-1));
@@ -52,5 +56,6 @@ void MainWindow::timerEvent(QTimerEvent*)
         data[i+3] = 50*sin(t * 2*M_PI*8/(250-1));
         t++;
     }
-    plot->addData(data, 4*8);
+    //plot->addData(data, 4*8);
+    zone->addData(data, 4*8);
 }

@@ -4,6 +4,7 @@
 #include <QMainWindow>
 
 #include <signalplot.h>
+#include "plcurveszone.h"
 
 namespace Ui {
 class MainWindow;
@@ -20,7 +21,9 @@ public:
 private:
     Ui::MainWindow *ui;
 
-    SignalPlot *plot;
+    //SignalPlot *plot;
+
+    PlCurvesZone *zone;
 
     int t;
 

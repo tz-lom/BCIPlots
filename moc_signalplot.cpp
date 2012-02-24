@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'signalplot.h'
 **
-** Created: Sun Feb 19 19:18:40 2012
+** Created: Thu Feb 23 17:01:55 2012
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.0)
 **
 ** WARNING! All changes made in this file will be lost!
