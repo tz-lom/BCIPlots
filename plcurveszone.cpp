@@ -4,6 +4,7 @@
 PlCurvesZone::PlCurvesZone(QWidget *parent) :
     QWidget(parent)
 {
+    reconfigure(1,1);
 }
 
 
@@ -12,14 +13,19 @@ void PlCurvesZone::paintEvent(QPaintEvent *)
     QPainter painter;
     painter.begin(this);
 
-    //painter.fillRect(this->rect(),QColor("white"));
+    qreal curveHeight = this->height()/mCurves.size();
 
-    QMatrix matrix;
-    matrix.translate(0, height()/2);
+    for(int t=mCurves.size()-1; t>=0; --t)
+    {
+        QMatrix matrix;
 
-    painter.setMatrix(matrix);
-    painter.setPen(QColor("black"));
-    curve.draw(painter);
+        matrix.translate(0, curveHeight*(0.5+t));
+        //matrix.scale(1, this->height()/curveHeight);
+        painter.setMatrix(matrix);
+
+        painter.setPen(QColor("black"));
+        mCurves[t].draw(painter);
+    }
 
     painter.end();
 }
@@ -31,22 +37,38 @@ void PlCurvesZone::resizeEvent(QResizeEvent *)
 
 void PlCurvesZone::scalePlots()
 {
-    curve.setWidth(this->width());
+    for(int t=mCurves.size()-1; t>=0; --t)
+    {
+        mCurves[t].setWidth(this->width());
+    }
     update();
 }
 
 void PlCurvesZone::addData(qreal *data, int size)
 {
-    int length = size/4;
-    /*for(int t=0; t<length; ++t)
-    {
-        curve.addData(data[t*4]);
-    }*/
-    curve.addDataRow(data+3, length, 4);
+    int length = size/mCurves.size();
 
-    QRect rect = curve.updateRect();
+    for(int t=mCurves.size()-1; t>=0; --t)
+    {
+        mCurves[t].addDataRow(data+t, length, mCurves.size());
+    }
+
+    QRect rect = mCurves[0].updateRect();
     rect.setTop(0);
     rect.setBottom(height());
     update(rect);
-    //repaint(rect);
 }
+
+void PlCurvesZone::reconfigure(int curves,int size)
+{
+    if(curves<1) return;
+    if(size<1) return;
+    mCurves.resize(curves);
+    for(int t=mCurves.size()-1; t>=0; --t)
+    {
+        mCurves[t].setSize(size);
+        mCurves[t].setWidth(this->width());
+    }
+    update();
+}
+

@@ -9,18 +9,19 @@ class PlCurvesZone : public QWidget
     Q_OBJECT
 public:
     explicit PlCurvesZone(QWidget *parent = 0);
-    
-    PlSingleCurve curve;
-
 signals:
     
 public slots:
     void addData(qreal *data, int size);
+
+    void reconfigure(int curves,int size);
+
     void scalePlots();
-    
 protected:
     void paintEvent(QPaintEvent *);
     void resizeEvent (QResizeEvent *);
+
+    QVector<PlSingleCurve> mCurves;
 };
 
 #endif // PLCURVESZONE_H

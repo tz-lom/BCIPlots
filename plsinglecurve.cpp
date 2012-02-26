@@ -250,7 +250,7 @@ void PlSingleCurve::setSize(int size)
     mAdded = mFront*mItemPerPixel;
 
     int realWidth = mWidth;
-    mWidth=1;
+    mWidth=0;
     mPaintData.resize(0);
     setWidth(realWidth);
 

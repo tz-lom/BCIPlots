@@ -4,6 +4,8 @@
 #include <math.h>
 #include <QTimer>
 
+#define GLOB_C 60
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -19,8 +21,8 @@ MainWindow::MainWindow(QWidget *parent) :
     plot->resize(500,500);*/
 
     zone = new PlCurvesZone(ui->centralWidget);
-    zone->curve.setSize(1000);
-    zone->curve.setWidth(this->width());
+    zone->reconfigure(GLOB_C,1000);
+    zone->resize(100,100);
     ui->verticalLayout->addWidget(zone);
 
     /*QTimer *timer = new QTimer(this);
@@ -36,22 +38,23 @@ MainWindow::~MainWindow()
 
 void MainWindow::timerEvent(QTimerEvent*)
 {
-    qreal data[4*8];
-    for(int i=0; i<4*8; i+=4)
+    const int c = GLOB_C;
+    const int a = 5;
+    qreal data[c*8];
+    for(int i=0; i<c*8; i+=c)
     {
-        data[i+0] = 50*sin(t * 2*M_PI*1/(250-1));
-        data[i+1] = 50*sin(t * 2*M_PI*2/(250-1));
-        data[i+2] = 50*sin(t * 2*M_PI*4/(250-1));
-        data[i+3] = 50*sin(t * 2*M_PI*8/(250-1));
+        for(int j=0; j<c; ++j)
+            data[i+j] = a*sin(t * 2*M_PI*(j+1)/(250-1));
+
         t++;
     }
     //plot->addData(data, 4*8);
-    zone->addData(data, 4*8);
+    zone->addData(data, c*8);
 }
 
 void MainWindow::on_pushButton_clicked()
 {
-    t=0;
+   /* t=0;
     for(int i=0; i<500; ++i)
     {
         qreal data[4];
@@ -60,17 +63,15 @@ void MainWindow::on_pushButton_clicked()
         data[2] = 50*sin(i * 2*M_PI*4/(250-1));
         data[3] = 50*sin(i * 2*M_PI*8/(250-1));
         zone->addData(data, 4);
-    }
+    }*/
 }
 
 void MainWindow::on_pushButton_3_clicked()
 {
-    zone->curve.setSize(1000);
-    zone->update();
+    zone->reconfigure(GLOB_C, 1000);
 }
 
 void MainWindow::on_pushButton_2_clicked()
 {
-    zone->curve.setSize(500);
-    zone->update();
+    zone->reconfigure(GLOB_C, 500);
 }
