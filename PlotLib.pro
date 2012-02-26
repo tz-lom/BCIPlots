@@ -9,9 +9,9 @@ TARGET = PlotLib
 TEMPLATE = lib
 CONFIG += staticlib
 
-SOURCES += signalplot.cpp
+SOURCES += plcurveszone.cpp plsinglecurve.cpp
 
-HEADERS += signalplot.h cyclicvector.h
+HEADERS += plcurveszone.h plsinglecurve.h
 unix:!symbian {
     maemo5 {
         target.path = /opt/usr/lib
