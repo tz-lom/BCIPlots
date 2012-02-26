@@ -3,15 +3,16 @@
 #include <QDebug>
 
 PlSingleCurve::PlSingleCurve():
-    mWidth(0),
+    mWidth(1),
+    mItemPerPixel(1),
     mSize(1),
     mMode(PlSingleCurve::Cyclic)
 {
-    resize(1,1);
+    setWidth(1);
 }
 
 
-int PlSingleCurve::count()
+int PlSingleCurve::size()
 {
     return mSize;
 }
@@ -37,7 +38,8 @@ void PlSingleCurve::addData(qreal data)
     {
         mMean += data;
         mMeanedPoints++;
-        if(mMeanedPoints >= mItemPerPixel)
+        mAdded++;
+        if(mAdded/mItemPerPixel>=mFront)
         {
             float avg = mMean/mMeanedPoints;
             if(mMode == Pushing)
@@ -53,8 +55,12 @@ void PlSingleCurve::addData(qreal data)
                 mUpdateRect.setLeft( mFront-1 );
                 mUpdateRect.setRight( mFront+1 );
 
-                mPaintData[mFront++].setY(avg);
-                if(mFront>=mPaintData.size()) mFront=0;
+                mPaintData[mFront].setY(avg);
+            }
+            if(++mFront>=mPaintData.size())
+            {
+                mFront=0;
+                mMeanedPoints = 0;
             }
             mMean = 0;
             mMeanedPoints = 0;
@@ -89,31 +95,6 @@ void PlSingleCurve::addDataRow(qreal *data, int size, int step)
         {
             addData(*data);
         }
-        /*if(mItemPerPixel>1)
-        {
-
-        }
-        else
-        {
-            int lSize = mPaintData.size();
-
-            if(size>=lSize)
-            {
-                data+=step*(size-lSize);
-                size=lSize;
-            }
-
-            for(int t=size; t<lSize; ++t)
-            {
-                mPaintData[t-size].setY(mPaintData[t].y());
-            }
-
-            int lPos = lSize-size;
-            for(int t=0; t<size; ++t,data+=step)
-            {
-                mPaintData[lPos+t].setY(*data);
-            }
-        }*/
     }
     else
     {
@@ -142,35 +123,99 @@ void PlSingleCurve::addDataRow(qreal *data, int size, int step)
 }
 
 
-void PlSingleCurve::resize(int width, int count)
+void PlSingleCurve::setWidth(int width)
 {
-    if(count<1) return;
-    qreal itemPerPixel = (qreal)count/width;
+    if(mWidth==width) return;
+    qreal itemPerPixel = (qreal)mSize/width;
     if(itemPerPixel>1)
     {
-        // performe resampling
+        // perform resampling
 
         QVector<QPointF> newData;
         newData.resize(width);
-        for(int t=0;t<width;++t)
+        for(int t=0; t<width; ++t)
         {
             newData[t].setX(t);
+        }
+
+        if(itemPerPixel > mItemPerPixel)
+        {
+            int point = 0;
+            qreal avg = 0;
+            int avgc  = 0;
+            qreal step = (qreal)newData.size()/mPaintData.size();
+
+            for(int t=0; t<mPaintData.size(); ++t)
+            {
+                avg+= mPaintData[t].y();
+                avgc++;
+
+                if(::floor(step*t)>point)
+                {
+                    newData[point].setY(avg/avgc);
+                    avg  = 0;
+                    avgc = 0;
+                    point++;
+                    if(point>newData.size()-1) point=newData.size()-1;
+                }
+            }
+            if(avgc>0) newData[newData.size()-1].setY(avg/avgc);
+        }
+        else
+        {
+
+            for(int t=1; t<mPaintData.size(); ++t)
+            {
+                int     left = ::floor((qreal)(t-1)/mPaintData.size()*newData.size()),
+                        right = ::ceil((qreal)(t)/mPaintData.size()*newData.size()),
+                        w = right-left;
+
+                qreal   b = mPaintData[t-1].y(),
+                        a = (mPaintData[t].y()-mPaintData[t-1].y())/w;
+
+                for(int x=0,i=left; i<=right; ++i,++x)
+                {
+                    newData[i].setY(a*x+b);
+                }
+            }
         }
 
         mPaintData = newData;
     }
     else
     {
-        mPaintData.resize(count);
-        for(int t=0;t<count;++t)
+        if(mItemPerPixel>1)
+        {
+            QVector<QPointF> newData;
+            newData.resize(mSize);
+
+            for(int t=1; t<mPaintData.size(); ++t)
+            {
+                int     left = ::floor((qreal)(t-1)/mPaintData.size()*newData.size()),
+                        right = ::ceil((qreal)(t)/mPaintData.size()*newData.size());
+                if(right>  newData.size()-1) right =  newData.size()-1;
+                int w = right-left;
+
+                qreal   b = mPaintData[t-1].y(),
+                        a = (mPaintData[t].y()-mPaintData[t-1].y())/w;
+
+                for(int x=0,i=left; i<=right; ++i,++x)
+                {
+                    newData[i].setY(a*x+b);
+                }
+            }
+            mPaintData = newData;
+        }
+        mPaintData.resize(mSize);
+        for(int t=0;t<mSize;++t)
         {
             mPaintData[t].setX(t/itemPerPixel);
         }
     }
     mItemPerPixel = itemPerPixel;
     mWidth = width;
-    mSize = count;
     if(mFront>mPaintData.size()) mFront = 0;
+    mAdded = mFront*mItemPerPixel;
     mMean = 0;
     mMeanedPoints = 0;
 
@@ -179,6 +224,36 @@ void PlSingleCurve::resize(int width, int count)
         mUpdateRect.setLeft( 0 );
         mUpdateRect.setRight( width );
     }
+}
+
+void PlSingleCurve::setSize(int size)
+{
+    if(mSize==size) return;
+
+    /*
+      @todo: here is the trick:
+      resize to new itemPerPixel
+      then restore width and set new count
+     *
+    int oldWidth = mWidth;
+    qreal itemPerPixel = (qreal)size/mWidth;
+    setWidth(mSize/itemPerPixel);
+    setWidth(oldWidth-1);
+    mSize = size;
+    setWidth(oldWidth);
+    */
+
+    mSize = size;
+    mFront = 0;
+    mMean = 0;
+    mMeanedPoints = 0;
+    mAdded = mFront*mItemPerPixel;
+
+    int realWidth = mWidth;
+    mWidth=1;
+    mPaintData.resize(0);
+    setWidth(realWidth);
+
 }
 
 void PlSingleCurve::draw(QPainter &painter)

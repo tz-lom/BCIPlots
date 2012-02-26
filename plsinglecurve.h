@@ -15,11 +15,12 @@ public:
     };
 
     int width();
-    int count();
+    int size();
     Mode mode();
 
     void setMode(Mode mode);
-    void resize(int width, int count);
+    void setWidth(int width);
+    void setSize(int size);
 
     void addData(qreal data);
     void addDataRow(qreal *data, int size, int step=1);
@@ -36,6 +37,7 @@ protected:
     qreal mMean;
     int mMeanedPoints;
     int mFront;
+    int mAdded;
 
     Mode mMode;
     QRect mUpdateRect;

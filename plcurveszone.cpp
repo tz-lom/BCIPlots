@@ -1,4 +1,5 @@
 #include "plcurveszone.h"
+#include <QTimer>
 
 PlCurvesZone::PlCurvesZone(QWidget *parent) :
     QWidget(parent)
@@ -25,7 +26,12 @@ void PlCurvesZone::paintEvent(QPaintEvent *)
 
 void PlCurvesZone::resizeEvent(QResizeEvent *)
 {
-    curve.resize(this->width(), curve.count());
+    QTimer::singleShot(500, this, SLOT(scalePlots()));
+}
+
+void PlCurvesZone::scalePlots()
+{
+    curve.setWidth(this->width());
     update();
 }
 
@@ -36,7 +42,7 @@ void PlCurvesZone::addData(qreal *data, int size)
     {
         curve.addData(data[t*4]);
     }*/
-    curve.addDataRow(data, length, 4);
+    curve.addDataRow(data+3, length, 4);
 
     QRect rect = curve.updateRect();
     rect.setTop(0);

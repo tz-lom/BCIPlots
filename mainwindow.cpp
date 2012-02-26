@@ -19,20 +19,9 @@ MainWindow::MainWindow(QWidget *parent) :
     plot->resize(500,500);*/
 
     zone = new PlCurvesZone(ui->centralWidget);
-    zone->curve.resize(zone->width(),500);
+    zone->curve.setSize(1000);
+    zone->curve.setWidth(this->width());
     ui->verticalLayout->addWidget(zone);
-
-    t=0;
-    /*for(int i=0; i<500; ++i)
-    {
-        QVector<int> data;
-        data.resize(4);
-        data[0] = 50*sin(i * 2*M_PI*1/(250-1));
-        data[1] = 50*sin(i * 2*M_PI*2/(250-1));
-        data[2] = 50*sin(i * 2*M_PI*4/(250-1));
-        data[3] = 50*sin(i * 2*M_PI*8/(250-1));
-        plot->addData(data);
-    }*/
 
     /*QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(newData()));
@@ -58,4 +47,30 @@ void MainWindow::timerEvent(QTimerEvent*)
     }
     //plot->addData(data, 4*8);
     zone->addData(data, 4*8);
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    t=0;
+    for(int i=0; i<500; ++i)
+    {
+        qreal data[4];
+        data[0] = 50*sin(i * 2*M_PI*1/(250-1));
+        data[1] = 50*sin(i * 2*M_PI*2/(250-1));
+        data[2] = 50*sin(i * 2*M_PI*4/(250-1));
+        data[3] = 50*sin(i * 2*M_PI*8/(250-1));
+        zone->addData(data, 4);
+    }
+}
+
+void MainWindow::on_pushButton_3_clicked()
+{
+    zone->curve.setSize(1000);
+    zone->update();
+}
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    zone->curve.setSize(500);
+    zone->update();
 }

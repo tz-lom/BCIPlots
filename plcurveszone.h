@@ -16,6 +16,7 @@ signals:
     
 public slots:
     void addData(qreal *data, int size);
+    void scalePlots();
     
 protected:
     void paintEvent(QPaintEvent *);
