@@ -60,7 +60,7 @@ void PlSingleCurve::addData(qreal data)
             if(++mFront>=mPaintData.size())
             {
                 mFront=0;
-                mMeanedPoints = 0;
+                mAdded = 0;
             }
             mMean = 0;
             mMeanedPoints = 0;
@@ -247,7 +247,7 @@ void PlSingleCurve::setSize(int size)
     mFront = 0;
     mMean = 0;
     mMeanedPoints = 0;
-    mAdded = mFront*mItemPerPixel;
+    mAdded = 0;
 
     int realWidth = mWidth;
     mWidth=0;
@@ -264,5 +264,10 @@ void PlSingleCurve::draw(QPainter &painter)
 QRect PlSingleCurve::updateRect()
 {
     return mUpdateRect;
+}
+
+int PlSingleCurve::frontInPixels()
+{
+    return (mItemPerPixel>1)?mFront:mFront/mItemPerPixel;
 }
 

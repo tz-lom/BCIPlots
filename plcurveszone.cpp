@@ -20,12 +20,15 @@ void PlCurvesZone::paintEvent(QPaintEvent *)
         QMatrix matrix;
 
         matrix.translate(0, curveHeight*(0.5+t));
-        //matrix.scale(1, this->height()/curveHeight);
         painter.setMatrix(matrix);
 
         painter.setPen(QColor("black"));
         mCurves[t].draw(painter);
     }
+    painter.setMatrixEnabled(false);
+    painter.setPen(QPen(QBrush(QColor(255,128,0)),3));
+    int front = mCurves[0].frontInPixels();
+    painter.drawLine(front,0,front,this->height());
 
     painter.end();
 }

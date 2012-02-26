@@ -4,7 +4,7 @@
 #include <math.h>
 #include <QTimer>
 
-#define GLOB_C 60
+#define GLOB_C 100
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),

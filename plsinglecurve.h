@@ -29,6 +29,8 @@ public:
 
     QRect updateRect();
 
+    int frontInPixels();
+
 protected:
     QVector<QPointF> mPaintData;
     int mWidth;
