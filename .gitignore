@@ -1,0 +1,6 @@
+moc_*
+ui_*
+BCIPlots
+BCIPlots.pro*
+Makefile
+*.a
